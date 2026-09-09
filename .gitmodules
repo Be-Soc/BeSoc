@@ -1,3 +1,6 @@
 [submodule "PoSoc"]
 	path = PoSoc
 	url = git@github.com:Be-Soc/PoSoc.git
+[submodule "CloDem"]
+	path = CloDem
+	url = git@github.com:Be-Soc/CloDem.git
