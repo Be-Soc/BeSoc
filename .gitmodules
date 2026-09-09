@@ -1,0 +1,3 @@
+[submodule "PoSoc"]
+	path = PoSoc
+	url = git@github.com:Be-Soc/PoSoc.git
