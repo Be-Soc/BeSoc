@@ -10,3 +10,6 @@
 [submodule "rust-libp2p"]
 	path = rust-libp2p
 	url = git@github.com:Be-Soc/rust-libp2p.git
+[submodule "GplVote"]
+	path = GplVote
+	url = git@github.com:gpl-vote/GplVote.git
