@@ -40,7 +40,7 @@
 
 **Что даёт [P]:**
 
-1. **Идентичность:** личность — пара ключей $(x, pk)$, регистрации нет ([ARCH-2.1.1](../PoSoc/specs/concept/02_architecture.md#arch-2.1.1), [ARCH-2.1.2](../PoSoc/specs/concept/02_architecture.md#arch-2.1.2)); смерть ключа — `KEY_LOSS` ([ARCH-2.3.2](../PoSoc/specs/concept/02_architecture.md#arch-2.3.2)).
+1. **Идентичность:** личность — identity-ключ человека: пара ключей $(x, pk)$, детерминированно выведенная из seed; регистрации нет (PoSoc v0.14 [§2.1](../PoSoc/specs/spec.md), деривация — [§8.4](../PoSoc/specs/spec.md)); смерть ключа — `KEY_LOSS` (PoSoc v0.14 [§2.3](../PoSoc/specs/spec.md)). Device-ключи — транспортные, вне протокола ([transport-identity.md](transport-identity.md)).
 2. **Записи:** детерминированная канонизация, подписи, неотказуемость ([FMT-2.7](../PoSoc/specs/implementation/01_records_formats.md#fmt-2.7), [FMT-2.8](../PoSoc/specs/implementation/01_records_formats.md#fmt-2.8)); классы consent objects (TTL, автопродление, revoke) и actions ([ARCH-2.3](../PoSoc/specs/concept/02_architecture.md#arch-2.3)).
 3. **Доставка:** транспорт = социальный граф ([ARCH-2.2.1](../PoSoc/specs/implementation/04_node_transport.md#arch-2.2.1)); anti-entropy — обнаружение утаивания ([ARCH-2.2.3](../PoSoc/specs/implementation/04_node_transport.md#arch-2.2.3)); согласованность в пределе ([ARCH-2.5](../PoSoc/specs/implementation/04_node_transport.md#arch-2.5)).
 4. **Consent-семантика и детерминизм:** TTL, автопродление, мгновенный revoke, номенклатура `X_REVOKE` ([ARCH-2.3.1](../PoSoc/specs/concept/02_architecture.md#arch-2.3.1), [ARCH-2.4.5](../PoSoc/specs/concept/02_architecture.md#arch-2.4.5), [PRIN-1.2.6](../PoSoc/specs/concept/01_intro_principles.md#prin-1.2.6)); LWW по назначению, reconstruction, состояние — чистая функция ([ARCH-2.4.4](../PoSoc/specs/concept/02_architecture.md#arch-2.4.4), [ARCH-2.4.6](../PoSoc/specs/concept/02_architecture.md#arch-2.4.6), [ARCH-2.4.8](../PoSoc/specs/concept/02_architecture.md#arch-2.4.8)).
@@ -88,9 +88,9 @@
 
 <a id="pcd-3.1"></a>
 
-| Потребность CloDem (cdem) | Механизм PoSoc v0.13 [P] |
+| Потребность CloDem (cdem) | Механизм PoSoc [P] |
 |---|---|
-| Идентичность участника (`User`) | Пара ключей $(x, pk)$ ([ARCH-2.1.1](../PoSoc/specs/concept/02_architecture.md#arch-2.1.1)); «участник иерархии» — член валидной L0 ([HIER-5.3.3](../PoSoc/specs/concept/05_hierarchy.md#hier-5.3.3)) |
+| Идентичность участника (`User`) | Identity-ключ человека: пара $(x, pk)$, выведенная из seed (PoSoc v0.14 [§2.1](../PoSoc/specs/spec.md)); «участник иерархии» — член валидной L0 (PoSoc v0.14 [§5.3.3](../PoSoc/specs/spec.md)) |
 | Неотказуемое волеизъявление | Подписанные канонические записи ([FMT-2.7](../PoSoc/specs/implementation/01_records_formats.md#fmt-2.7), [FMT-2.8](../PoSoc/specs/implementation/01_records_formats.md#fmt-2.8)) |
 | Доставка записей участникам домена | Транспорт = соцграф ([ARCH-2.2.1](../PoSoc/specs/implementation/04_node_transport.md#arch-2.2.1)), anti-entropy ([ARCH-2.2.3](../PoSoc/specs/implementation/04_node_transport.md#arch-2.2.3)) |
 | Отзыв волеизъявления | `X_REVOKE`: обрезка живости вперёд от $t_{sign}$ ([ARCH-2.3.1](../PoSoc/specs/concept/02_architecture.md#arch-2.3.1), [ARCH-2.4.5](../PoSoc/specs/concept/02_architecture.md#arch-2.4.5)) |
@@ -107,7 +107,7 @@
 
 | Сущность cdem (cdem §6) | Механизм CloDem [C] |
 |---|---|
-| `User` | Ключ PoSoc [P] + членства в доменах-иерархиях уровней власти; статус раскрытия — запись `PROFILE` |
+| `User` | Identity-ключ человека [P] (выведен из seed — PoSoc v0.14 [§2.1](../PoSoc/specs/spec.md)) + членства в доменах-иерархиях уровней власти; статус раскрытия — запись `PROFILE`; device-ключи пользователя — транспортные, вне протокола, в домене не участвуют ([transport-identity.md](transport-identity.md)) |
 | `Delegation` | Consent-объект домена `DELEGATE(from, to, scope)`: TTL, автопродление, мгновенный revoke (`DELEGATE_REVOKE`) — по образцу consent-семантики PoSoc ([ARCH-2.3](../PoSoc/specs/concept/02_architecture.md#arch-2.3), [ARCH-2.4.5](../PoSoc/specs/concept/02_architecture.md#arch-2.4.5)); scope — ячейка матрицы «тема × уровень × важность» |
 | `Vote` | Личный голос — запись `BALLOT(question, choice)`; голос через представителя — не запись: учитывается счётом живых `DELEGATE` ([4.4](#pcd-4.4), [4.5](#pcd-4.5)) |
 | `Question / Initiative` | Записи `QUESTION`, `INITIATIVE`: текст, уровень, тема, автор, пруфлинки, порог, дедлайн, статус — семантика домена |
@@ -154,7 +154,7 @@
 
 1. **Детерминизм.** Все производные состояния (tally, топы, советы, держатели) — чистые функции хранимого множества прикладных записей и $\tau$, в духе [ARCH-2.4.8](../PoSoc/specs/concept/02_architecture.md#arch-2.4.8): у узлов, сошедшихся по множеству записей, результаты совпадают.
 2. **Наследование consent-паттерна.** Доменные consent-объекты (`DELEGATE`) воспроизводят семантику TTL/автопродления/мгновенного revoke ([ARCH-2.3](../PoSoc/specs/concept/02_architecture.md#arch-2.3), [PRIN-1.2.6](../PoSoc/specs/concept/01_intro_principles.md#prin-1.2.6)): «купленного» делегирования не существует.
-3. **Подсчёт по уникальным pk.** Tally считает уникальные ключи (образец — disjoint count, [HIER-5.4.1](../PoSoc/specs/concept/05_hierarchy.md#hier-5.4.1)): один ключ — один голос в домене.
+3. **Подсчёт по уникальным pk.** Tally считает уникальные identity-ключи людей (образец — disjoint count, PoSoc v0.14 [§5.4.1](../PoSoc/specs/spec.md)): один identity-ключ — один голос в домене; device-ключи не голосуют и в tally не участвуют (транспортные, вне протокола — [transport-identity.md](transport-identity.md)).
 4. **Архивирование.** Домен ведёт архив собственных записей (публичный протокол голосований и делегирований, cdem §7); политики хранения прикладных записей — правила домена в рамках обязательной зоны узла ([ARCH-2.2.4](../PoSoc/specs/concept/02_architecture.md#arch-2.2.4)) и GC-горизонтов ([ARCH-2.2.5](../PoSoc/specs/concept/02_architecture.md#arch-2.2.5)).
 5. **Чтение предиката живой L0.** Фильтр компетентности читает живость L0/иерархии как предикат состояния ([L0-4.3](../PoSoc/specs/concept/04_l0.md#l0-4.3), [HIER-5.3.3](../PoSoc/specs/concept/05_hierarchy.md#hier-5.3.3)), не создавая для этого собственных записей.
 
@@ -170,7 +170,7 @@
 
 <a id="pcd-4.1"></a>
 
-- **[P]** Вход в систему — ключ и подпись: личность — пара $(x, pk)$ ([ARCH-2.1.1](../PoSoc/specs/concept/02_architecture.md#arch-2.1.1)); все волеизъявления подписаны (cdem §7.2).
+- **[P]** Вход в систему — identity-ключ человека и подпись: личность — identity-ключ $(x, pk)$, выведенный из seed (PoSoc v0.14 [§2.1](../PoSoc/specs/spec.md), [§8.4](../PoSoc/specs/spec.md)); все волеизъявления подписаны identity-ключом (cdem §7.2; подписанты записей — только identity-ключи: PoSoc v0.14 [§2.3](../PoSoc/specs/spec.md), device-ключи подписывать записи не могут).
 - **[C]** Уровни власти — домены CloDem на сообществах $ID_{GH}$ ([HIER-5.2.3](../PoSoc/specs/concept/05_hierarchy.md#hier-5.2.3)); членство в домене уровня — доменная запись по правилам домена.
 - **[C]** «Регистрация по месту проживания» (cdem §5.1) транспортом не воспроизводится: территориальная привязка — политика домена; разрешение противоречия — [6.1](#pcd-6.1), [6.8](#pcd-6.8).
 
@@ -292,7 +292,7 @@
 
 <a id="pcd-6.2"></a>
 
-Противоречие: cdem §7.4 — единство голоса; PoSoc — многоличность принципиально не детектируется ([LIM-10.2](../PoSoc/specs/concept/10_limitations.md#lim-10.2)). Разрешение (в слое CloDem): единственность **по ключу** — tally по уникальным pk (образец — disjoint count, [HIER-5.4.1](../PoSoc/specs/concept/05_hierarchy.md#hier-5.4.1)); многоличность дорожает inclusion cost ([PRIN-1.3.3-a](../PoSoc/specs/concept/01_intro_principles.md#prin-1.3.3-a)) и стоимостью живых связей; остаточный риск признаётся — осознанная цена, как и в PoSoc.
+Противоречие: cdem §7.4 — единство голоса; PoSoc — многоличность принципиально не детектируется (PoSoc v0.14 [§10.2](../PoSoc/specs/spec.md)). Разрешение (в слое CloDem): единственность **по identity-ключу** — tally по уникальным identity-ключам людей (образец — disjoint count, PoSoc v0.14 [§5.4.1](../PoSoc/specs/spec.md)); один identity-ключ — один голос: device-ключи не голосуют и в tally не участвуют ([transport-identity.md](transport-identity.md)); многоличность дорожает inclusion cost (PoSoc v0.14 [§1.3](../PoSoc/specs/spec.md)) и стоимостью живых связей; остаточный риск признаётся — осознанная цена, как и в PoSoc.
 
 ### 6.3 Тайна бюллетеня
 
