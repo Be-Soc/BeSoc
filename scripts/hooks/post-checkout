@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# post-checkout hook суперрепозитория besoc.
+#
+# Назначение: при создании нового worktree суперрепозитория автоматически
+# поднимать worktree каждого сабмодуля внутри нового worktree, переиспользуя
+# уже существующие локальные копии сабмодулей (без клонирования по сети).
+#
+# Как работает:
+#   1. Если хук вызван в основном worktree (обычный checkout в локальном
+#      репозитории) — сразу выходит, ничего не делая.
+#   2. Для каждого сабмодуля из .gitmodules берёт коммит, записанный в новом
+#      HEAD суперпроекта, и создаёт worktree сабмодуля из его локальной
+#      основной копии (detached HEAD, чтобы не конфликтовать по веткам).
+#   3. Файл .git-указатель создаётся самим `git worktree add`, суперпроект
+#      сразу видит сабмодуль в новом worktree.
+#
+# Ограничения:
+#   - Если у сабмодуля нет локальной копии (ни разу не делали
+#     `git submodule update --init`), хук печатает громкое предупреждение и
+#     пропускает его: сети он не использует принципиально.
+#   - Если нужный коммит сабмодуля отсутствует локально (объект не найден),
+#     печатается предупреждение, сабмодуль пропускается.
+#
+# Хук не изменяет состояние основного worktree и локальных копий сабмодулей.
+
+# --- Шаг 1: основной worktree? Выходим -------------------------------------
+# В основном worktree git-dir совпадает с common-dir (".git"); в связанном
+# worktree git-dir = ".git/worktrees/<имя>", а common-dir остаётся ".git".
+gitdir=$(git rev-parse --absolute-git-dir)
+common=$(cd "$(git rev-parse --git-common-dir)" && pwd)
+if [ "$gitdir" = "$common" ]; then
+	exit 0
+fi
+
+# Путь к основному (исходному) чекауту суперрепозитория.
+main_worktree=$(dirname "$common")
+
+# Коммит, на который смотрит новый worktree суперпроекта.
+new_head=$2
+
+# --- Шаг 2-3: worktree для каждого сабмодуля --------------------------------
+# Список путей сабмодулей из .gitmodules.
+submodules=$(git config --file .gitmodules --get-regexp '^submodule\..*\.path$' | awk '{print $2}')
+
+for path in $submodules; do
+	target="$PWD/$path"
+
+	# Gitlink-запись создаёт в новом worktree пустой каталог сабмодуля —
+	# занятым считаем путь, только если там уже лежит .git-указатель.
+	if [ -e "$target/.git" ]; then
+		echo "post-checkout: '$path' уже существует в worktree, пропускаю" >&2
+		continue
+	fi
+
+	local_copy="$main_worktree/$path"
+	if [ ! -e "$local_copy/.git" ]; then
+		echo "post-checkout: ВНИМАНИЕ: у сабмодуля '$path' нет локальной копии в $local_copy." >&2
+		echo "post-checkout: выполните вручную: git submodule update --init $path" >&2
+		continue
+	fi
+
+	commit=$(git rev-parse -q --verify "$new_head:$path" 2>/dev/null)
+	if [ -z "$commit" ]; then
+		echo "post-checkout: ВНИМАНИЕ: сабмодуль '$path' отсутствует в HEAD, пропускаю" >&2
+		continue
+	fi
+
+	if ! git -C "$local_copy" rev-parse -q --verify "$commit^{commit}" >/dev/null 2>&1; then
+		echo "post-checkout: ВНИМАНИЕ: коммит $commit сабмодуля '$path' не найден локально." >&2
+		echo "post-checkout: выполните в $local_copy: git fetch && git worktree add --detach $target $commit" >&2
+		continue
+	fi
+
+	if git -C "$local_copy" worktree add --detach "$target" "$commit" >/dev/null 2>&1; then
+		echo "post-checkout: сабмодуль '$path' -> worktree на $commit"
+	else
+		echo "post-checkout: ОШИБКА: не удалось создать worktree сабмодуля '$path'" >&2
+		echo "post-checkout: вручную: git -C $local_copy worktree add --detach $target $commit" >&2
+	fi
+done
+
+exit 0
