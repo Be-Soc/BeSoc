@@ -7,7 +7,7 @@
 
 ## specs/
 
-- [ ] Починить незатронутые битые ссылки на старую структуру спек PoSoc в [specs/posoc-cdem.md](specs/posoc-cdem.md) и [specs/app-state-model.md](specs/app-state-model.md): ссылки вида `../PoSoc/specs/concept/*`, `../PoSoc/specs/implementation/*`, `../PoSoc/specs/glossary.md`, `../PoSoc/specs/index.md`, `../PoSoc/docs/posoc-*.md` указывают на файлы, не существующие после объединения спек PoSoc в единый `specs/spec.md`. Обновлены только места, затронутые разделением identity/device-ключей; остальные — по мере правок.
+- [ ] Починить незатронутые битые ссылки на старую структуру спек PoSoc в [specs/posoc-cdem.md](specs/posoc-cdem.md) и [specs/app-state-model.md](specs/app-state-model.md): ссылки вида `../PoSoc/specs/concept/*`, `../PoSoc/specs/implementation/*`, `../PoSoc/specs/glossary.md`, `../PoSoc/specs/index.md`, `../PoSoc/docs/posoc-*.md` указывают на файлы, не существующие после объединения спек PoSoc в единый `specs/spec.md`. Обновлены только места, затронутые разделением identity/device-ключей; остальные — по мере правок. При починке учитывать перенумерацию §7.3/§8 v0.14 (напр. [DEF-7.3.3] → §7.3.4).
 
 ## specs/index.md
 
